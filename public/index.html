@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<head>
+    <script>
+        let script = document.createElement('script');
+        script.src = "https://cdn.paddle.com/paddle/paddle.js";
+        document.head.appendChild(script)
+
+        let globalState = {
+            vendor: "",
+            eventCallback: function (eventData) {
+
+            },
+        };
+
+        function validateEmail(mail) {
+            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+                return (true)
+            }
+            return (false)
+        }
+
+        class Membership {
+            constructor() {
+            }
+
+            static _getView() {
+                return `<div>
+<h2>Please enter your details</h2>
+<div style="color:gray; margin-bottom: 20px;">We collect this information to help combat fraud, and to keep
+    your payment secure.</div>
+<div>Email address</div>
+<input type="email" id="membership-email-textfield"
+    style=" width: 100%; padding: 8px 10px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;">
+<div style="margin-top: 20px;">Website Integration</div>
+<input type="text" id="membership-website-textfield"
+    style=" width: 100%; padding: 8px 10px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;">
+<div style="margin-top: 20px;">Name</div>
+<input type="text" id="membership-username-textfield"
+    style=" width: 100%; padding: 8px 10px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;">
+<div style="margin-top: 20px;">Payment Method</div>
+<div id="membership-payment-options" style="margin-top: 10px;">
+</div>
+<div style="margin-top: 50px;">
+    <button id="membership-button"
+        style="font-size: 18px; width: 100%; background-color: #4CAF50; color: white; padding: 14px 20px; margin: 8px 0; border: none; border-radius: 4px; cursor: pointer; display: none;"
+        onclick="Membership.onSubmit()">Continue</button>
+</div>
+<div></div>
+</div>`;
+            }
+
+            static Setup(value) {
+                if (value.eventCallback != null) {
+                    globalState.eventCallback = value.eventCallback;
+                }
+                return new Membership();
+            }
+
+            static open(options) {
+                var target = options['target'];
+                var element = document.getElementById(target);
+                if (element != null) {
+                    element.innerHTML = this._getView();
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    function _enablePaddleOption() {
+                        var innerHTML = `<input type="radio" name="membership-payment" value="paddle" style="margin-left: 30px;"><span><svg width="105" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M49.9213 7.48787C52.468 7.48787 54.724 8.7676 56.1418 10.7844V0H59.0423V24.0002H56.1418V21.2156C54.724 23.2363 52.468 24.5121 49.9213 24.5121C45.1514 24.5121 41.123 20.7682 41.123 16.0005C41.123 11.2328 45.1514 7.48787 49.9213 7.48787ZM49.9213 21.9517C53.692 21.9517 56.1418 19.424 56.1418 16.0005C56.1418 12.577 53.692 10.0483 49.9213 10.0483C46.5702 10.0483 44.0234 12.448 44.0234 16.0005C44.0234 19.5529 46.5702 21.9517 49.9213 21.9517ZM36.2891 10.7843C34.8713 8.76752 32.6153 7.48779 30.0695 7.48779C25.2987 7.48779 21.2703 11.2327 21.2703 16.0004C21.2703 20.7681 25.2987 24.5121 30.0695 24.5121C32.5833 24.5121 34.8355 23.2362 36.2891 21.2156V24.0002H39.1896V7.99969H36.2891V10.7843ZM36.2891 16.0004C36.2891 19.3922 33.8073 21.9516 30.0695 21.9516C26.7175 21.9516 24.1707 19.5529 24.1707 16.0004C24.1707 12.448 26.7175 10.0482 30.0695 10.0482C33.8402 10.0482 36.2891 12.5759 36.2891 16.0004ZM0 15.5818V16.4478C0.529481 16.4479 1.05375 16.5517 1.54282 16.7531C2.0319 16.9545 2.47621 17.2497 2.85034 17.6217C3.22446 17.9937 3.52108 18.4353 3.72324 18.9212C3.92539 19.4071 4.02911 19.9277 4.02848 20.4535H4.83475C4.83501 19.3927 5.25952 18.3755 6.01495 17.6254C6.77038 16.8753 7.79489 16.4538 8.86323 16.4536V15.5876C8.33375 15.5875 7.80948 15.4837 7.3204 15.2823C6.83133 15.0809 6.38702 14.7858 6.01289 14.4137C5.63876 14.0417 5.34214 13.6002 5.13999 13.1143C4.93784 12.6284 4.83412 12.1077 4.83475 11.582H4.02848C4.02822 12.6427 3.60371 13.6599 2.84828 14.41C2.09285 15.1601 1.06834 15.5816 0 15.5818ZM10.9574 10.08H4.02848V7.51953H10.9574C15.8241 7.51953 19.6598 11.3289 19.6598 16.0004C19.6598 20.6719 15.8241 24.4803 10.9574 24.4803H6.92894V31.9999H4.02848V21.9199H10.9574C14.3424 21.9199 16.7593 19.5211 16.7593 16.0004C16.7593 12.4797 14.3415 10.08 10.9574 10.08ZM76.3185 10.7844C74.8998 8.7676 72.6437 7.48787 70.098 7.48787C65.3281 7.48787 61.2997 11.2328 61.2997 16.0005C61.2997 20.7682 65.3281 24.5121 70.098 24.5121C72.6437 24.5121 74.8998 23.2363 76.3185 21.2156V24.0002H79.219V0H76.3185V10.7844ZM76.3185 16.0005C76.3185 19.424 73.8687 21.9517 70.098 21.9517C66.7459 21.9517 64.2001 19.5529 64.2001 16.0005C64.2001 12.448 66.7459 10.0483 70.098 10.0483C73.8687 10.0483 76.3185 12.577 76.3185 16.0005ZM82.116 24.0002V0H85.0175V24.0002H82.116ZM104.001 17.1214C104.001 11.8408 101.326 7.52051 95.7513 7.52051C90.8846 7.52051 87.1139 11.3943 87.1139 16.0014C87.1139 20.6084 90.8846 24.4813 95.7513 24.4813C99.6189 24.4813 102.486 22.0488 103.582 19.5846H100.456C99.2962 21.3445 97.7496 22.2413 95.7513 22.2413C92.8508 22.2413 90.5299 20.2245 90.0793 17.1214H104.001ZM95.7513 9.76052C98.8446 9.76052 101.101 12.2565 101.101 14.8814H90.0793C90.5299 11.7811 92.8508 9.76052 95.7513 9.76052Z" fill="#FFD300"></path></svg></span>`;
+                        var options = document.getElementById('membership-payment-options');
+                        options.innerHTML = options.innerHTML + innerHTML;
+                    }
+                    function _enablePaypalOption() {
+                        var innerHTML = `<input type="radio" name="membership-payment" value="paypal" checked><span><img style="margin-left: 10px;"
+            width="100px;" src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" /></span>
+        `;
+                        var options = document.getElementById('membership-payment-options');
+                        options.innerHTML = options.innerHTML + innerHTML;
+                    }
+                    function _setDefaultOption(value) {
+                        var payment = document.getElementsByName('membership-payment');
+                        for (var i = 0; i < payment.length; i++) {
+                            console.log(payment[i].value);
+                            if (payment[i].value == value) {
+                                payment[i].checked = true;
+                            } else {
+                                payment[i].checked = false;
+                            }
+                        }
+                    }
+                    if (xhr.readyState == XMLHttpRequest.DONE) {
+                        var data = JSON.parse(xhr.response);
+                        globalState.config = data;
+                        globalState.eventCallback(data);
+                        var enable_button = false;
+                        var paypal_id = data['paypal_id'];
+                        var paddle_id = data['paddle_id'];
+                        if (paypal_id && paypal_id !== '') {
+                            enable_button = true;
+                            _enablePaypalOption();
+                        }
+                        if (paddle_id && paddle_id !== '') {
+                            enable_button = true;
+                            _enablePaddleOption();
+                        }
+                        if (!paypal_id || paypal_id === '') {
+                            _setDefaultOption('paddle');
+                        }
+                        if (enable_button) {
+                            var button_submit = document.getElementById('membership-button');
+                            button_submit.style.display = 'block';
+                        }
+                    }
+                }
+                xhr.open("GET", `{{payment_method}}`, true);
+                xhr.send();
+            }
+
+            static async onSubmit() {
+                var email = document.getElementById('membership-email-textfield');
+                var name = document.getElementById('membership-username-textfield');
+                var website = document.getElementById('membership-website-textfield');
+                var payment = document.getElementsByName('membership-payment');
+                var validate = validateEmail(email.value);
+                if (!validate) {
+                    alert('You need to enter a valid mail address');
+                    return;
+                }
+                if (name.value.trim().length == 0) {
+                    alert('You need to enter name');
+                    return;
+                }
+                if (website.value.trim().length == 0) {
+                    alert('You need to enter website');
+                    return;
+                }
+                var service;
+                for (var i = 0; i < payment.length; i++) {
+                    if (payment[i].checked) {
+                        service = payment[i].value;
+                    }
+                }
+                var button_submit = document.getElementById('membership-button');
+                button_submit.disabled = true;
+                button_submit.innerText = 'Loading...'
+                var body = {
+                    'plan': '{{payment_plan}}',
+                    'name': name.value,
+                    'email': email.value,
+                    'service': service,
+                    'website': website.value,
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == XMLHttpRequest.DONE) {
+                        var data = JSON.parse(xhr.response);
+                        if (data['url'] == null) {
+                            alert('Opps, can not payment');
+                        } else {
+                            if (service == 'paddle') {
+                                if (data['production'] == false) {
+                                    Paddle.Environment.set('sandbox');
+                                }
+                                Paddle.Setup({ vendor: parseInt(data['vendor']) });
+                                Paddle.Checkout.open({
+                                    override: data['url']
+                                });
+                            } else {
+                                window.location.replace(data['url']);
+                            }
+                        }
+                        button_submit.disabled = false;
+                        button_submit.innerText = 'Continue'
+                    }
+                }
+                xhr.open("POST", "{{request_payment}}", true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify(body));
+            }
+        }
+    </script>
+</head>
+<style>
+    .content {
+        margin: 0 10%;
+    }
+
+    .content-left {
+        float: left;
+        width: 50%;
+    }
+
+    .content-right {
+        float: right;
+        width: 50%;
+    }
+
+    .billing-content {
+        margin-top: 20px;
+        padding-left: 50px;
+    }
+
+    @media only screen and (max-width: 1000px) {
+        .content {
+            margin: 0;
+        }
+
+        .content-left {
+            float: none;
+            width: 100%;
+        }
+
+        .content-right {
+            float: none;
+            width: 100%;
+        }
+
+        .billing-content {
+            margin-top: 20px;
+            padding-left: 0px;
+        }
+    }
+</style>
+
+<body>
+    <script>
+        Membership.Setup({
+            eventCallback: function (eventData) {
+                onCallback(eventData);
+            }
+        });
+        function onCallback(data) {
+            document.getElementById('name').innerHTML = data['name'];
+            document.getElementById('content').innerHTML = data['content'];
+            document.getElementById('total').innerHTML = `$${data['initial_price']} / ${data['billing_period']} ${data['billing_type']}`;
+        }
+    </script>
+    <div class="content">
+        <div>
+            <div class="content-left" id="checkout"></div>
+            <div class="content-right">
+                <div class="billing-content">
+                    <div class="content">
+                        <div style="background-color: #F8F9FC; padding: 24px; border-radius: 16px;">
+                            <div class="right">
+                                <div class="item">
+                                    <div style="float: left;"><span id="name" style="font-size: 18px;"></span></div>
+                                </div>
+                                <div style="clear:both;"></div>
+                                <div id="divider" style="margin-top: 20px;"></div>
+                                <div class="item" style="font-size: 20px; font-weight: 600;">
+                                    <div style="float: left;">Total</div>
+                                    <div style="float: right;"><span id="total"></div>
+                                </div>
+                                <div style="clear:both;"></div>
+                                <div id="divider" style="margin-top: 20px; margin-bottom: 16px;"></div>
+                                <div style="white-space: pre-wrap;" id="content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        Membership.open({ 'target': 'checkout' })
+    </script>
+</body>
